@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Indian Movies To Surely Watch</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#111;color:#fff}
+header{
+background:#e50914;
+padding:20px;
+font-size:34px;
+font-weight:bold;
+text-align:center;
+}
+.category{padding:25px}
+.category h2{margin-bottom:15px;color:#ffd700}
+.movies{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+.card{
+background:#222;
+padding:20px;
+border-radius:10px;
+cursor:pointer;
+width:180px;
+text-align:center;
+transition:.3s;
+}
+.card:hover{
+transform:scale(1.08);
+background:#333;
+}
+#details{
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:70%;
+background:#1e1e1e;
+padding:30px;
+border-radius:12px;
+box-shadow:0 0 20px rgba(0,0,0,.8);
+}
+#details h2{margin-bottom:15px}
+#details p{margin:8px 0}
+button{
+margin-top:20px;
+padding:12px 18px;
+border:none;
+border-radius:8px;
+background:#e50914;
+color:white;
+cursor:pointer;
+}
+button:hover{background:#ff2d2d}
+.close{
+float:right;
+font-size:25px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>🎬 Top Indian Movies To Surely Watch</header>
+
+<div id="content"></div>
+
+<div id="details">
+<span class="close" onclick="closeDetails()">✖</span>
+<div id="info"></div>
+</div>
+
+<script>
+
+const data={
+"Comedy":[
+{
+title:"Hera Pheri",
+director:"Priyadarshan",
+release:"2000",
+rating:"8.2/10",
+cast:"Akshay Kumar, Suniel Shetty, Paresh Rawal",
+story:"Three unemployed men get involved in a kidnapping.",
+trailer:"https://www.youtube.com/results?search_query=Hera+Pheri+Trailer"
+},
+{
+title:"Golmaal",
+director:"Rohit Shetty",
+release:"2006",
+rating:"7.4/10",
+cast:"Ajay Devgn, Arshad Warsi",
+story:"Four friends create hilarious chaos.",
+trailer:"https://www.youtube.com/results?search_query=Golmaal+Trailer"
+},
+{
+title:"3 Idiots",
+director:"Rajkumar Hirani",
+release:"2009",
+rating:"8.4/10",
+cast:"Aamir Khan, R Madhavan, Sharman Joshi",
+story:"Three students redefine success.",
+trailer:"https://www.youtube.com/results?search_query=3+Idiots+Trailer"
+}
+],
+
+"Action":[
+{
+title:"War",
+director:"Siddharth Anand",
+release:"2019",
+rating:"6.5/10",
+cast:"Hrithik Roshan, Tiger Shroff",
+story:"Two elite soldiers face each other.",
+trailer:"https://www.youtube.com/results?search_query=War+Trailer"
+},
+{
+title:"Pathaan",
+director:"Siddharth Anand",
+release:"2023",
+rating:"6.0/10",
+cast:"Shah Rukh Khan, Deepika Padukone",
+story:"An exiled spy returns to save India.",
+trailer:"https://www.youtube.com/results?search_query=Pathaan+Trailer"
+},
+{
+title:"KGF Chapter 2",
+director:"Prashanth Neel",
+release:"2022",
+rating:"8.3/10",
+cast:"Yash, Sanjay Dutt",
+story:"Rocky rises to become a legend.",
+trailer:"https://www.youtube.com/results?search_query=KGF+2+Trailer"
+}
+],
+
+"Romance":[
+{
+title:"DDLJ",
+director:"Aditya Chopra",
+release:"1995",
+rating:"8.0/10",
+cast:"Shah Rukh Khan, Kajol",
+story:"A timeless love story.",
+trailer:"https://www.youtube.com/results?search_query=DDLJ+Trailer"
+},
+{
+title:"Jab We Met",
+director:"Imtiaz Ali",
+release:"2007",
+rating:"7.9/10",
+cast:"Shahid Kapoor, Kareena Kapoor",
+story:"A chance meeting changes two lives.",
+trailer:"https://www.youtube.com/results?search_query=Jab+We+Met+Trailer"
+},
+{
+title:"Sita Ramam",
+director:"Hanu Raghavapudi",
+release:"2022",
+rating:"8.5/10",
+cast:"Dulquer Salmaan, Mrunal Thakur",
+story:"A beautiful love story across time.",
+trailer:"https://www.youtube.com/results?search_query=Sita+Ramam+Trailer"
+}
+]
+};
+
+const content=document.getElementById("content");
+
+for(let cat in data){
+
+let html=`<div class="category">
+<h2>${cat}</h2>
+<div class="movies">`;
+
+data[cat].forEach(movie=>{
+html+=`<div class="card" onclick='show(${JSON.stringify(movie)})'>
+<h3>${movie.title}</h3>
+<p>⭐ ${movie.rating}</p>
+</div>`;
+});
+
+html+=`</div></div>`;
+
+content.innerHTML+=html;
+}
+
+function show(m){
+
+document.getElementById("details").style.display="block";
+
+document.getElementById("info").innerHTML=`
+<h2>${m.title}</h2>
+<p><b>Director:</b> ${m.director}</p>
+<p><b>Release:</b> ${m.release}</p>
+<p><b>IMDb:</b> ${m.rating}</p>
+<p><b>Cast:</b> ${m.cast}</p>
+<p><b>Story:</b> ${m.story}</p>
+
+<button onclick="window.open('${m.trailer}','_blank')">
+▶ Watch Trailer
+</button>
+`;
+
+}
+
+function closeDetails(){
+document.getElementById("details").style.display="none";
+}
+
+</script>
+
+</body>
+</html>
+
+
