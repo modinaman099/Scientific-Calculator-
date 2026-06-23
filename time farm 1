@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .calculator {
+            background-color: #202020;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .screen-container {
+            margin-bottom: 15px;
+        }
+
+        #display {
+            width: 100%;
+            height: 60px;
+            background-color: #2d2d2d;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 1.8rem;
+            text-align: right;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #00adb5;
+            margin-top: 5px;
+            padding: 0 5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            padding: 15px 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        /* Styling classifications */
+        button.operator {
+            background-color: #00adb5;
+            color: #ffffff;
+        }
+
+        button.action {
+            background-color: #ff5722;
+            color: #ffffff;
+        }
+
+        button.trig {
+            background-color: #2d2d2d;
+            color: #00adb5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="screen-container">
+        <input type="text" id="display" readonly value="0">
+        <div class="status-bar">
+            <span id="mode-indicator">MODE: DEGREES</span>
+        </div>
+    </div>
+
+    <div class="grid">
+        <button class="action" onclick="toggleMode()">Deg/Rad</button>
+        <button class="trig" onclick="inputFunc('sin')">sin</button>
+        <button class="trig" onclick="inputFunc('cos')">cos</button>
+        <button class="trig" onclick="inputFunc('tan')">tan</button>
+        <button class="action" onclick="clearDisplay()">C</button>
+
+        <button class="trig" onclick="inputFunc('fact')">x!</button>
+        <button class="trig" onclick="inputFunc('asin')">asin</button>
+        <button class="trig" onclick="inputFunc('acos')">acos</button>
+        <button class="trig" onclick="inputFunc('atan')">atan</button>
+        <button class="action" onclick="backspace()">⌫</button>
+
+        <button onclick="input('π')">π</button>
+        <button onclick="input('e')">e</button>
+        <button onclick="input('^')">^</button>
+        <button onclick="input('(')">(</button>
+        <button onclick="input(')')">)</button>
+
+        <button class="trig" onclick="inputFunc('ln')">ln</button>
+        <button onclick="input('7')">7</button>
+        <button onclick="input('8')">8</button>
+        <button onclick="input('9')">9</button>
+        <button class="operator" onclick="input('/')">/</button>
+
+        <button class="trig" onclick="inputFunc('log')">log</button>
+        <button onclick="input('4')">4</button>
+        <button onclick="input('5')">5</button>
+        <button onclick="input('6')">6</button>
+        <button class="operator" onclick="input('*')">*</button>
+
+        <button class="trig" onclick="inputFunc('sqrt')">√</button>
+        <button onclick="input('1')">1</button>
+        <button onclick="input('2')">2</button>
+        <button onclick="input('3')">3</button>
+        <button class="operator" onclick="input('-')">-</button>
+
+        <button class="trig" onclick="inputFunc('recip')">1/x</button>
+        <button onclick="input('0')">0</button>
+        <button onclick="input('.')">.</button>
+        <button class="operator" onclick="calculate()">=</button>
+        <button class="operator" onclick="input('+')">+</button>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById('display');
+    const modeIndicator = document.getElementById('mode-indicator');
+
+    let isDeg = true;
+    let currentInput = "";
+
+    // FIX 1: Use `var` (not `const`) so these are attached to `window`
+    // and accessible inside Function() which runs in global scope.
+    // With `const`, these would be script-scope only → ReferenceError in degree mode.
+    var degToRad = x => x * (Math.PI / 180);
+    var radToDeg = x => x * (180 / Math.PI);
+
+    // FIX 2: Track whether the last action was a completed calculation,
+    // so the next digit input starts a fresh expression instead of appending.
+    let justCalculated = false;
+
+    function input(char) {
+        // FIX 2 (continued): If coming fresh from a result and user presses
+        // a digit, start over. If user presses an operator, chain from result.
+        if (justCalculated) {
+            justCalculated = false;
+            if (!isNaN(char) && char !== ' ') {
+                currentInput = char;
+                updateDisplay();
+                return;
+            }
+            // operator after result → use result as left operand
+            currentInput = display.value;
+        }
+
+        if (display.value === "0" && currentInput === "" && !isNaN(char) && char !== ' ') {
+            currentInput = char;
+        } else {
+            currentInput += char;
+        }
+        updateDisplay();
+    }
+
+    function inputFunc(funcName) {
+        if (justCalculated) justCalculated = false;
+        if (display.value === "0" && currentInput === "") currentInput = "";
+
+        if (funcName === 'recip') {
+            currentInput += "1/(";
+        } else {
+            currentInput += funcName + "(";
+        }
+        updateDisplay();
+    }
+
+    function clearDisplay() {
+        currentInput = "";
+        justCalculated = false;
+        display.value = "0";
+    }
+
+    function backspace() {
+        if (justCalculated) {
+            // Backspace on a finished result clears it fully
+            clearDisplay();
+            return;
+        }
+        currentInput = currentInput.slice(0, -1);
+        if (currentInput === "") {
+            display.value = "0";
+        } else {
+            updateDisplay();
+        }
+    }
+
+    function toggleMode() {
+        isDeg = !isDeg;
+        modeIndicator.innerText = isDeg ? "MODE: DEGREES" : "MODE: RADIANS";
+    }
+
+    function updateDisplay() {
+        display.value = currentInput;
+    }
+
+    function fact(n) {
+        if (n < 0 || !Number.isInteger(n)) return NaN;
+        if (n === 0 || n === 1) return 1;
+        let result = 1;
+        for (let i = 2; i <= n; i++) result *= i;
+        return result;
+    }
+
+    function calculate() {
+        try {
+            let expr = currentInput;
+
+            expr = expr.replace(/π/g, 'Math.PI');
+
+            // FIX 3: Use word-boundary `\be\b` instead of `/e/g` to avoid
+            // replacing the 'e' inside words like 'degToRad', 'Math.E', etc.
+            expr = expr.replace(/\be\b/g, 'Math.E');
+
+            expr = expr.replace(/\^/g, '**');
+
+            // Trig (degree/radian aware)
+            expr = expr.replace(/sin\(([^)]+)\)/g, (_, m) => `Math.sin(${isDeg ? `degToRad(${m})` : m})`);
+            expr = expr.replace(/cos\(([^)]+)\)/g, (_, m) => `Math.cos(${isDeg ? `degToRad(${m})` : m})`);
+            expr = expr.replace(/tan\(([^)]+)\)/g, (_, m) => `Math.tan(${isDeg ? `degToRad(${m})` : m})`);
+
+            // Inverse trig
+            expr = expr.replace(/asin\(([^)]+)\)/g, (_, m) => isDeg ? `radToDeg(Math.asin(${m}))` : `Math.asin(${m})`);
+            expr = expr.replace(/acos\(([^)]+)\)/g, (_, m) => isDeg ? `radToDeg(Math.acos(${m}))` : `Math.acos(${m})`);
+            expr = expr.replace(/atan\(([^)]+)\)/g, (_, m) => isDeg ? `radToDeg(Math.atan(${m}))` : `Math.atan(${m})`);
+
+            // Logs & roots (use $1 backreference in replacement string)
+            expr = expr.replace(/log\(([^)]+)\)/g, 'Math.log10($1)');
+            expr = expr.replace(/ln\(([^)]+)\)/g, 'Math.log($1)');
+            expr = expr.replace(/sqrt\(([^)]+)\)/g, 'Math.sqrt($1)');
+            // fact() — function declaration so it IS on window, accessible from Function()
+
+            let result = Function('"use strict"; return (' + expr + ')')();
+
+            if (isNaN(result) || !isFinite(result)) {
+                throw new Error("Invalid Output");
+            }
+
+            // Clean floating-point representation errors (e.g. 0.1 + 0.2)
+            if (typeof result === 'number' && !Number.isInteger(result)) {
+                result = parseFloat(result.toFixed(8));
+            }
+
+            display.value = result;
+            currentInput = String(result);
+            justCalculated = true; // FIX 2: mark so next digit starts fresh
+        } catch (error) {
+            display.value = "Error";
+            currentInput = "";
+            justCalculated = false;
+        }
+    }
+
+    // Keyboard support
+    window.addEventListener('keydown', (e) => {
+        // FIX 4 & 5: Guard against space (' '), map 'e' → Euler, '^' → power
+        if (e.key === ' ') return; // FIX 5: space was accidentally accepted via !isNaN(' ')
+
+        if (!isNaN(e.key) || ['+', '-', '*', '/', '(', ')', '.'].includes(e.key)) {
+            input(e.key);
+        } else if (e.key === 'Enter' || e.key === '=') {
+            calculate();
+        } else if (e.key === 'Backspace') {
+            backspace();
+        } else if (e.key === 'Escape') {
+            clearDisplay();
+        } else if (e.key === 'e') {   // FIX 4a: keyboard 'e' → Euler's number
+            input('e');
+        } else if (e.key === '^') {   // FIX 4b: keyboard '^' → power operator
+            input('^');
+        }
+    });
+</script>
+
+</body>
+</html>
