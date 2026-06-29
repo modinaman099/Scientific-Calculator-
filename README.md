@@ -1,1 +1,0 @@
-I have designed a scientific calculator with all the necessary functions . It has an option to switch between scientific (advnaced) calculator and normal calculator . It can change themes . It also has a history page that can store calculations and you on your own can clear it to .
